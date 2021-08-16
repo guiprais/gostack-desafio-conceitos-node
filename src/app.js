@@ -1,5 +1,5 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
 
 const { v4: uuid, validate: isUuid } = require('uuid');
 
@@ -8,13 +8,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const repositories = [];
+let repositories = [];
 
-app.get("/repositories", (request, response) => {
+app.get('/repositories', (request, response) => {
   return response.json(repositories);
 });
 
-app.post("/repositories", (request, response) => {
+app.post('/repositories', (request, response) => {
   const { title, url, techs } = request.body;
 
   const repository = {
@@ -22,7 +22,7 @@ app.post("/repositories", (request, response) => {
     title,
     url,
     techs,
-    likes: 0
+    likes: 0,
   };
 
   repositories.push(repository);
@@ -30,15 +30,48 @@ app.post("/repositories", (request, response) => {
   return response.json(repository);
 });
 
-app.put("/repositories/:id", (request, response) => {
-  // TODO
+app.put('/repositories/:id', (request, response) => {
+  const { id } = request.params;
+  const { title, url, techs } = request.body;
+
+  const getRepositoryByIndex = repositories.findIndex(
+    (repository) => repository.id === id
+  );
+
+  if (getRepositoryByIndex < 0) {
+    return response.status(400).json({ error: 'Repository not found' });
+  }
+
+  const repository = {
+    id,
+    title,
+    url,
+    techs,
+    likes: repositories[getRepositoryByIndex].likes,
+  };
+
+  repositories[getRepositoryByIndex] = repository;
+
+  return response.json(repository);
 });
 
-app.delete("/repositories/:id", (request, response) => {
-  // TODO
+app.delete('/repositories/:id', (request, response) => {
+  const { id } = request.params;
+
+  const getRepositoryByIndex = repositories.findIndex(
+    (repository) => repository.id === id
+  );
+
+  if (getRepositoryByIndex < 0) {
+    return response.status(400).json({ error: 'Repository not found' });
+  }
+
+  repositories = repositories.filter(repository => repository.id !== id);
+
+  return response.status(204).send();
 });
 
-app.post("/repositories/:id/like", (request, response) => {
+app.post('/repositories/:id/like', (request, response) => {
   // TODO
 });
 
